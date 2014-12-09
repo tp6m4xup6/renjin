@@ -147,10 +147,6 @@ public abstract class StringVector extends AbstractAtomicVector implements Itera
     return indexOf(value, 0);
   }
 
-  @Override
-  public String getTypeName() {
-    return TYPE_NAME;
-  }
 
   @Override
   public final boolean equals(Object o) {
@@ -229,6 +225,12 @@ public abstract class StringVector extends AbstractAtomicVector implements Itera
     public Builder newBuilderWithInitialCapacity(int initialCapacity) {
       return new StringArrayVector.Builder(0,initialCapacity);
     }
+
+    @Override
+    public String getName() {
+      return TYPE_NAME;
+    }
+
 
     @Override
     public Vector getElementAsVector(Vector vector, int index) {

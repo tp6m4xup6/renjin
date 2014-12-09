@@ -74,10 +74,6 @@ public abstract class DoubleVector extends AbstractAtomicVector implements Itera
     return !Double.isInfinite(d) && !Double.isNaN(d);
   }
 
-  @Override
-  public String getTypeName() {
-    return TYPE_NAME;
-  }
 
   @Override
   public Type getVectorType() {
@@ -299,6 +295,11 @@ public abstract class DoubleVector extends AbstractAtomicVector implements Itera
     @Override
     public DoubleArrayVector.Builder newBuilderWithInitialCapacity(int initialCapacity) {
       return new DoubleArrayVector.Builder(0, initialCapacity);
+    }
+
+    @Override
+    public String getName() {
+      return TYPE_NAME;
     }
 
     @Override

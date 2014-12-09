@@ -23,6 +23,10 @@ package org.renjin.primitives.subset;
 
 import org.renjin.sexp.IntVector;
 import org.renjin.sexp.LogicalVector;
+import org.renjin.sexp.Vector;
+
+import javax.lang.model.SourceVersion;
+import java.util.Iterator;
 
 /**
  * Logical subscripts, i.e: x[TRUE, FALSE]
@@ -34,13 +38,17 @@ import org.renjin.sexp.LogicalVector;
 public class LogicalSubscript extends Subscript {
   private int count;
   private int[] indices;
+  private final LogicalVector subscript;
+  private final int sourceLength;
 
-  public LogicalSubscript(int dimLength, LogicalVector subscript) {
+  public LogicalSubscript(LogicalVector subscript, int sourceLength) {
+    this.subscript = subscript;
+    this.sourceLength = sourceLength;
     count = 0;
     if(subscript.length() == 0) {
       indices = new int[0];
     } else {
-      indices = new int[dimLength];
+      indices = new int[sourceLength];
   
       for(int i=0;i!=indices.length;++i) {
         int subscriptIndex = i % subscript.length();
@@ -53,6 +61,7 @@ public class LogicalSubscript extends Subscript {
       }
     }
   }
+
 
   @Override
   public int getCount() {

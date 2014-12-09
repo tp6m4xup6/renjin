@@ -19,7 +19,6 @@ public final class SelectionFactory {
       return new CompleteSelection(source);
     
     } else if(Iterables.size(subscripts) == 1) {
-      
       return fromSubscript(source, subscripts.iterator().next());
       
     } else {

@@ -75,11 +75,6 @@ public class ListVector extends AbstractVector implements Iterable<SEXP>, HasNam
   }
 
   @Override
-  public String getTypeName() {
-    return TYPE_NAME;
-  }
-
-  @Override
   public final boolean isWiderThan(Vector vector) {
     return getVectorType().isWiderThan(vector);
   }
@@ -583,6 +578,11 @@ public class ListVector extends AbstractVector implements Iterable<SEXP>, HasNam
     @Override
     public Builder newBuilderWithInitialCapacity(int initialCapacity) {
       return new Builder(0, initialCapacity);
+    }
+
+    @Override
+    public String getName() {
+      return TYPE_NAME;
     }
 
     @Override

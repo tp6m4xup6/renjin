@@ -36,11 +36,6 @@ public class RawVector extends AbstractAtomicVector implements Iterable<Byte> {
   }
 
   @Override
-  public String getTypeName() {
-    return ("raw");
-  }
-
-  @Override
   public void accept(SexpVisitor visitor) {
     visitor.visit(this);
   }
@@ -251,6 +246,11 @@ public class RawVector extends AbstractAtomicVector implements Iterable<Byte> {
     @Override
     public Builder newBuilderWithInitialCapacity(int initialCapacity) {
       return new RawVector.Builder(0);
+    }
+
+    @Override
+    public String getName() {
+      return TYPE_NAME;
     }
 
     @Override

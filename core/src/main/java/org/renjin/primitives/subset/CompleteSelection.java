@@ -1,9 +1,7 @@
 package org.renjin.primitives.subset;
 
 import com.google.common.collect.UnmodifiableIterator;
-import org.renjin.sexp.AtomicVector;
-import org.renjin.sexp.IntVector;
-import org.renjin.sexp.SEXP;
+import org.renjin.sexp.*;
 
 import java.util.Iterator;
 
@@ -53,15 +51,6 @@ public class CompleteSelection extends Selection {
     return source.length();
   }
 
-  @Override
-  public int[] getSubscriptDimensions() {
-    if(sourceDim.length() == 0) {
-      return new int[] { source.length() };
-    } else {
-      return ((IntVector)sourceDim).toIntArray();
-    }
-  }
-  
   private int getDimensionLength(int d) {
     if(sourceDim.length() == 0 && d == 0) {
       return source.length();
@@ -96,5 +85,20 @@ public class CompleteSelection extends Selection {
         };
       }
     };
+  }
+
+  @Override
+  public int getSelectedDimensionCount() {
+    return sourceDim.length();
+  }
+
+  @Override
+  public boolean isSingleElementSelectedFromDimension(int i) {
+    return sourceDim.getElementAsInt(i) == 1;
+  }
+
+  @Override
+  public Vector select(Vector sourceVector) {
+    return (Vector) source.setAttributes(AttributeMap.EMPTY);
   }
 }

@@ -20,7 +20,7 @@ public abstract class LogicalVector extends AbstractAtomicVector implements Iter
   public static SEXP valueOf(boolean value) {
     return value ? TRUE : FALSE;
   }
-  
+
   public LogicalVector(AttributeMap attributes) {
     super(attributes);
   }
@@ -28,10 +28,6 @@ public abstract class LogicalVector extends AbstractAtomicVector implements Iter
   protected LogicalVector() {
   }
 
-  @Override
-  public String getTypeName() {
-    return TYPE_NAME;
-  }
 
   @Override
   public abstract int length();
@@ -255,6 +251,11 @@ public abstract class LogicalVector extends AbstractAtomicVector implements Iter
     }
 
     @Override
+    public String getName() {
+      return TYPE_NAME;
+    }
+
+    @Override
     public Vector getElementAsVector(Vector vector, int index) {
       return new LogicalArrayVector(vector.getElementAsRawLogical(index));
     }
@@ -266,7 +267,7 @@ public abstract class LogicalVector extends AbstractAtomicVector implements Iter
 
     @Override
     public boolean elementsEqual(Vector vector1, int index1, Vector vector2,
-        int index2) {
+                                 int index2) {
       if(vector1.isElementNA(index1) || vector2.isElementNA(index2)) {
         return false;
       }

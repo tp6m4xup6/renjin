@@ -34,11 +34,6 @@ public abstract class IntVector extends AbstractAtomicVector implements Iterable
   }
 
   @Override
-  public String getTypeName() {
-    return TYPE_NAME;
-  }
-
-  @Override
   public Type getVectorType() {
     return VECTOR_TYPE;
   }
@@ -249,6 +244,11 @@ public abstract class IntVector extends AbstractAtomicVector implements Iterable
     @Override
     public IntArrayVector.Builder newBuilderWithInitialCapacity(int initialCapacity) {
       return new IntArrayVector.Builder(0, initialCapacity);
+    }
+
+    @Override
+    public String getName() {
+      return TYPE_NAME;
     }
 
     @Override

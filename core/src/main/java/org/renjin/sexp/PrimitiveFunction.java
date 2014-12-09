@@ -21,9 +21,6 @@
 
 package org.renjin.sexp;
 
-import org.renjin.eval.EvalException;
-
-
 public abstract class PrimitiveFunction extends AbstractSEXP implements Function {
 
   public abstract String getName();

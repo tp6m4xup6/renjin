@@ -25,6 +25,7 @@ import org.apache.commons.math.complex.Complex;
 import org.renjin.eval.EvalException;
 
 import java.util.Collections;
+import java.util.NoSuchElementException;
 
 /**
  * The R Nullary object.
@@ -44,6 +45,8 @@ public final class Null extends AbstractSEXP implements AtomicVector, PairList, 
 
   public static final Null INSTANCE = new Null();
   public static final Vector.Type VECTOR_TYPE = new NullType();
+
+  public static final ElementIterator ITERATOR = new NullIterator();
 
   private static final String INDEX_OUT_OF_BOUNDS = "The NULL object is zero-length.";
 
@@ -158,6 +161,11 @@ public final class Null extends AbstractSEXP implements AtomicVector, PairList, 
   @Override
   public Null getNames() {
     return Null.INSTANCE;
+  }
+
+  @Override
+  public ElementIterator elementIterator() {
+    return ITERATOR;
   }
 
   @Override
@@ -412,6 +420,36 @@ public final class Null extends AbstractSEXP implements AtomicVector, PairList, 
     }
   }
 
+  private static class NullIterator implements ElementIterator {
+
+    @Override
+    public boolean hasNext() {
+      return false;
+    }
+
+    @Override
+    public int nextInt() {
+      throw new NoSuchElementException();
+    }
+
+    @Override
+    public double nextDouble() {
+      throw new NoSuchElementException();
+    }
+
+    @Override
+    public String nextString() {
+      throw new NoSuchElementException();
+    }
+
+    @Override
+    public int nextLogical() {
+      throw new NoSuchElementException();
+    }
+  }
+
+
+
   private static class NullType extends Vector.Type {
 
     public NullType() {
@@ -435,6 +473,11 @@ public final class Null extends AbstractSEXP implements AtomicVector, PairList, 
     @Override
     public Vector.Builder newBuilderWithInitialCapacity(int initialCapacity) {
       return NullBuilder.INSTANCE;
+    }
+
+    @Override
+    public String getName() {
+      return TYPE_NAME;
     }
 
     @Override

@@ -66,17 +66,23 @@ public class CoordinateMatrixSelection extends Selection {
     throw new UnsupportedOperationException();
   }
 
-  @Override
-  public int[] getSubscriptDimensions() {
-    return new int[] { getElementCount() };
-  }
-  
   private int[] getCoordinate(int row) {
     int[] coord = new int[sourceDim.length];
     for(int i=0;i!=coord.length;++i) {
       coord[i] = coordinateMatrix.getElementAsInt(row, i) - 1;
     }
     return coord;
+  }
+
+  @Override
+  public int getSelectedDimensionCount() {
+    return 1;
+  }
+
+  @Override
+  public boolean isSingleElementSelectedFromDimension(int i) {
+    assert i == 0;
+    return coordinateMatrix.getNumRows() == 1;
   }
 
   @Override

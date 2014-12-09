@@ -21,11 +21,13 @@
 
 package org.renjin.primitives.subset;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.renjin.eval.EvalException;
 import org.renjin.sexp.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -103,6 +105,10 @@ public class SubscriptOperation {
     return this;
   }
 
+  public boolean isSourceOneDimensionalArray() {
+    return source.getAttributes().getDim().length() == 1;
+  }
+
   public SEXP extractSingle() {
 
     // this seems like an abritrary limitation,
@@ -134,110 +140,105 @@ public class SubscriptOperation {
       return Null.INSTANCE;
 
     } else {
-
-      StringArrayVector.Builder names = null;
-      if(source.getAttribute(Symbols.NAMES) != Null.INSTANCE) {
-        names = new StringArrayVector.Builder();
-      }
-      Vector.Builder result = source.newBuilderWithInitialSize(selection.getElementCount());
-      int count = 0;
-
-      for(Integer index : selection) {
-        if(!IntVector.isNA(index) && index < source.length()) {
-          result.setFrom(count++, source, index);
-          if(names != null) {
-            names.add(source.getName(index));
-          }
-        } else {
-          result.setNA(count++);
-          if(names != null) {
-            names.addNA();
-          }
-        }
-      }
-      result.setAttribute(Symbols.DIM, extractionDimension());
-      
-      // COMPUTE NAMES:
-      // if only subscript is used, always draw names from the NAMES attribute
-      // of the source
-      if(subscripts.size() == 1 && !sourceIsSingleDimensionArray()) {        
-        // (no DIMs attribute)
-        if(names != null) {
-          result.setAttribute(Symbols.NAMES, names.build());
-        }
-      } else {
-        // otherwise treat as an array and use dimnames
-        IntArrayVector.Builder dim = new IntArrayVector.Builder();
-        ListVector.Builder dimNames = new ListVector.Builder();
-        boolean hasDimNames = false;
-        int[] selectedDim = selection.getSubscriptDimensions();
-        for(int d=0;d!=selectedDim.length;++d) {
-          if(selectedDim[d] > 1 || !drop) {
-            dim.add(selectedDim[d]);
-            
-            Vector dimNamesElement = selection.getDimensionNames(d);
-            hasDimNames |= (dimNamesElement != Null.INSTANCE);
-            dimNames.add(dimNamesElement);
-          }
-        }
-        if(dim.length() > 1 || !drop) {
-          result.setAttribute(Symbols.DIM, dim.build());
-          if(hasDimNames) {
-            result.setAttribute(Symbols.DIMNAMES, dimNames.build());
-          }
-        } else {
-          if(hasDimNames) {
-            result.setAttribute(Symbols.NAMES, dimNames.build().getElementAsSEXP(0));
-          }
-        }
-      }
-      return result.build();
+      return (Vector)selection.select(source).setAttributes(extractAttributes());
     }
   }
-  
+
+
+  private AttributeMap extractAttributes() {
+    if(source.getAttributes().has(Symbols.DIM)) {
+      return extractArrayAttributes();
+
+    } else {
+      StringVector sourceNames = source.getAttributes().getNames();
+      if(sourceNames != null) {
+        return new AttributeMap.Builder()
+            .set(Symbols.NAMES, selection.select(sourceNames))
+            .build();
+      }
+    }
+
+    return AttributeMap.EMPTY;
+  }
+
+
+  private AttributeMap extractArrayAttributes() {
+
+    AttributeMap.Builder attributes = new AttributeMap.Builder();
+
+    // Get the number of dimensions of the selection
+    // This will only be > 1 for matrix subscripts like x[1,2,]
+    int selectedDimCount = selection.getSelectedDimensionCount();
+
+    // Build the list of dimension lengths/counts
+    // and corresponding dim names
+    IntArrayVector.Builder selectedDim = new IntArrayVector.Builder();
+    List<Vector> selectedDimNames = new ArrayList<Vector>();
+
+    boolean hasDimNames = false;
+
+    for (int i = 0; i < selectedDimCount; ++i) {
+
+      // if the drop flag is set (the default)
+      // we ignore dimensions of length 1
+      if(drop && selection.isSingleElementSelectedFromDimension(i)) {
+        continue;
+      }
+
+      // calculate the size of this dimension (number of rows/columns/etc)
+      selectedDim.add(Iterables.size(selection.getSelectionAlongDimension(i)));
+
+      // retrieve dimension names for this row/column/dim
+      Vector selectedNames = selection.getDimensionNames(i);
+      selectedDimNames.add(selectedNames);
+      if(selectedNames != Null.INSTANCE) {
+        hasDimNames = true;
+      }
+    }
+
+    // Determine whether the selection should have a DIM attribute
+    boolean hasDims = true;
+    if(dropDimensions(selectedDim, drop)) {
+      // No dim attribute, but use the first dimname as the resulting names
+      if(hasDimNames) {
+        attributes.setNames((StringVector) selectedDimNames.get(0));
+      }
+    } else {
+      attributes.setDim(selectedDim.build());
+      if(hasDimNames) {
+        attributes.set(Symbols.DIMNAMES, new ListVector(selectedDimNames));
+      }
+    }
+    return attributes.build();
+  }
+
+  /**
+   * Returns {@code true} if the {@code dim} attribute should be dropped from the result.
+   *
+   */
+  private boolean dropDimensions(IntArrayVector.Builder selectedDim, boolean drop) {
+    int dimCount = selectedDim.length();
+
+    if(dimCount == 0) {
+      return true;
+    }
+
+    if(drop && dimCount == 1) {
+      // If the drop flag is set, and we are selecting only a single dimension, then drop
+      // the dim attribute AS LONG AS the source was NOT a 1-dimensional array
+      if(!isSourceOneDimensionalArray()) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   private boolean sourceIsSingleDimensionArray() {
     return source.getAttribute(Symbols.DIM).length() == 1;
   }
 
-  private Vector extractionDimension() {
-    
-    if(source.getAttribute(Symbols.DIM) == Null.INSTANCE) {
-      // if the source has no dimension attribute,
-      // the result will never have one
-      
-      return Null.INSTANCE;
-      
-    } else {
-      
-      int[] selectedDim = selection.getSubscriptDimensions();
-      
-      IntArrayVector.Builder result = new IntArrayVector.Builder();
-      
-      for(int i=0;i!=selectedDim.length;++i) {
-        
-        // by default, we ignore dimensions with length 1 unless
-        // drop has been explicitly set to false
-        if(!drop || selectedDim[i] != 1) {
-          result.add(selectedDim[i]);
-        }
-      }
-      
-      if(result.length() == 0) {
-        return Null.INSTANCE;
-      }
-     
-      // we ONLY preserve a single-dimensioned array IF
-      // drop = false OR
-      // the source was also a single-dimensioned array
-      if(drop && result.length() == 1 && 
-          source.getAttribute(Symbols.DIM).length() != 1) {
-        return Null.INSTANCE;
-      } 
-      
-      return result.build();
-    }
-  }
-  
+
   public Vector replace(SEXP elements) {
 
     // [[<- and [<- seem to have a special meaning when

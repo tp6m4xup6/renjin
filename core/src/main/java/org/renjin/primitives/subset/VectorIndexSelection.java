@@ -53,8 +53,14 @@ public class VectorIndexSelection extends Selection {
   }
 
   @Override
-  public int[] getSubscriptDimensions() {
-    return new int[] { getElementCount() };
+  public int getSelectedDimensionCount() {
+    return 1;
+  }
+
+  @Override
+  public boolean isSingleElementSelectedFromDimension(int i) {
+    assert i == 0;
+    return subscript.selectsSingleElement();
   }
 
   @Override

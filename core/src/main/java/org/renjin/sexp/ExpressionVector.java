@@ -30,6 +30,8 @@ import com.google.common.base.Joiner;
 public class ExpressionVector extends ListVector {
   public static final String TYPE_NAME = "expression";
 
+  public static final Vector.Type VECTOR_TYPE = new VectorType();
+
 
   public ExpressionVector(SEXP[] functionCalls, AttributeMap attributes) {
     super(functionCalls, attributes);
@@ -58,8 +60,8 @@ public class ExpressionVector extends ListVector {
   }
 
   @Override
-  public String getTypeName() {
-    return TYPE_NAME;
+  public Type getVectorType() {
+    return VECTOR_TYPE;
   }
 
   @Override
@@ -74,7 +76,49 @@ public class ExpressionVector extends ListVector {
     visitor.visit(this);
   }
 
-  
+  public static class VectorType extends Vector.Type {
+
+    public VectorType() {
+      super(Order.EXPRESSION);
+    }
+
+    @Override
+    public Vector.Builder newBuilder() {
+      return new Builder();
+    }
+
+    @Override
+    public Vector.Builder newBuilderWithInitialSize(int initialSize) {
+      return new Builder(initialSize);
+    }
+
+    @Override
+    public Vector.Builder newBuilderWithInitialCapacity(int initialCapacity) {
+      return new Builder(0, initialCapacity);
+    }
+
+    @Override
+    public String getName() {
+      return TYPE_NAME;
+    }
+
+    @Override
+    public Vector getElementAsVector(Vector vector, int index) {
+      return new ExpressionVector(vector.getElementAsSEXP(index));
+    }
+
+    @Override
+    public int compareElements(Vector vector1, int index1, Vector vector2, int index2) {
+      return 0;
+    }
+
+    @Override
+    public boolean elementsEqual(Vector vector1, int index1, Vector vector2, int index2) {
+      return false;
+    }
+  }
+
+
   public static class Builder extends ListVector.Builder {
     
     public Builder() {
@@ -83,6 +127,10 @@ public class ExpressionVector extends ListVector {
 
     public Builder(int initialLength) {
       super(initialLength);
+    }
+
+    public Builder(int initialSize, int initialCapacity) {
+      super(initialSize, initialCapacity);
     }
 
     public Builder(ListVector toClone) {

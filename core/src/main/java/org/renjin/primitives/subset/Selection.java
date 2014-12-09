@@ -43,13 +43,6 @@ public abstract class Selection implements Iterable<Integer> {
     return getElementCount() == 0;
   }
 
-  /**
-   * 
-   * @return the {@code DIM} attribute for this ElementSet
-   */
-  public abstract int[] getSubscriptDimensions();
-
-
   protected abstract AtomicVector getNames(int dimensionIndex);
   
   
@@ -58,7 +51,7 @@ public abstract class Selection implements Iterable<Integer> {
       return new MissingSubscript(dimensionLength);
       
     } else if(argument instanceof LogicalVector) {
-      return new LogicalSubscript(dimensionLength, (LogicalVector)argument);
+      return new LogicalSubscript((LogicalVector)argument, dimensionLength);
 
     } else if(argument instanceof StringVector) {
       return new NamedSubscript(dimensionLength, getNames(dimensionIndex), (StringVector)argument);
@@ -105,5 +98,31 @@ public abstract class Selection implements Iterable<Integer> {
       names.add( sourceNames.getElementAsString(index) );
     }
     return names.build();
+  }
+
+  /**
+   *
+   * @return the number of dimensions selected
+   */
+  public abstract int getSelectedDimensionCount();
+
+
+  public abstract boolean isSingleElementSelectedFromDimension(int i);
+
+
+  public Vector select(Vector sourceVector) {
+    assert sourceVector != null;
+    assert sourceVector.getVectorType() != null;
+
+    Vector.Builder result = sourceVector.getVectorType().newBuilder();
+    int count = 0;
+    for(Integer index : this) {
+      if(!IntVector.isNA(index) && index < sourceVector.length()) {
+        result.setFrom(count++, sourceVector, index);
+      } else {
+        result.setNA(count++);
+      }
+    }
+    return result.build();
   }
 }

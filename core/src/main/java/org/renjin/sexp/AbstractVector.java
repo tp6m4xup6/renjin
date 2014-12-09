@@ -49,6 +49,46 @@ abstract class AbstractVector extends AbstractSEXP implements Vector {
     }
   }
 
+  @Override
+  public final String getTypeName() {
+    return getVectorType().getName();
+  }
+
+  @Override
+  public ElementIterator elementIterator() {
+    return new ElementIterator() {
+
+      private int i = 0;
+      private final int length = length();
+
+      @Override
+      public boolean hasNext() {
+        return i < length;
+      }
+
+      @Override
+      public int nextInt() {
+        return getElementAsInt(i++);
+      }
+
+      @Override
+      public double nextDouble() {
+        return getElementAsDouble(i++);
+      }
+
+      @Override
+      public String nextString() {
+        return getElementAsString(i++);
+      }
+
+      @Override
+      public int nextLogical() {
+        return getElementAsRawLogical(i++);
+      }
+    };
+  }
+
+
   public int getComputationDepth() {
     return 0;
   }

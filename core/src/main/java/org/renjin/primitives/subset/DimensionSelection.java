@@ -76,7 +76,6 @@ public class DimensionSelection extends Selection {
       dim[d] = count;
       elementCount *= count;
     }
-
   }
 
   
@@ -88,11 +87,6 @@ public class DimensionSelection extends Selection {
   @Override
   public int getElementCount() {
     return elementCount;
-  }
-  
-  @Override
-  public int[] getSubscriptDimensions() {
-    return dim;
   }
 
   @Override
@@ -198,5 +192,15 @@ public class DimensionSelection extends Selection {
     } else {
       return super.selectDimensionNames(dimIndex, sourceNames);
     }
+  }
+
+  @Override
+  public int getSelectedDimensionCount() {
+    return subscripts.length;
+  }
+
+  @Override
+  public boolean isSingleElementSelectedFromDimension(int i) {
+    return subscripts[i].selectsSingleElement();
   }
 }

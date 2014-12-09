@@ -184,6 +184,13 @@ public interface Vector extends SEXP {
    */
   Object getElementAsObject(int index);
 
+  /**
+   *
+   * @return an iterator over this Vector's indices
+   */
+  ElementIterator elementIterator();
+
+
   int getComputationDepth();
 
   /**
@@ -357,7 +364,13 @@ public interface Vector extends SEXP {
     public final boolean isWiderThanOrEqualTo(Vector.Type vectorType) {
       return compareTo(vectorType) >= 0;
     }
-    
+
+
+    /**
+     *
+     * @return R language type name
+     */
+    public abstract String getName();
 
     /**
      * Creates a new {@code Vector} of this {@code Type} from the element at

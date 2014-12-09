@@ -51,4 +51,8 @@ public abstract class Subscript {
   public boolean definitelySelectsAllElements() {
     return false;
   }
+
+  public boolean selectsSingleElement() {
+    return getCount() == 1;
+  }
 }
