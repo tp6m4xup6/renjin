@@ -1,0 +1,4 @@
+
+
+importClass(org.renjin.test.ClassInTransitiveJvmDep)
+export(executeJvmMethodInDependency)

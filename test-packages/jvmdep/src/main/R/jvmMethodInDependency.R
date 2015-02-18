@@ -1,0 +1,5 @@
+
+
+executeJvmMethodInDependency <- function() {
+    ClassInTransitiveJvmDep$execute()
+}
