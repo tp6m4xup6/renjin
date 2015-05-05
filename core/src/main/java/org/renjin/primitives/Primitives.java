@@ -646,6 +646,9 @@ public class Primitives {
     f("menu", Sessions.class, 11);
     f("print.default", Print.class, 111);
     f("print.function", Print.class, 111);
+    
+    f("helloFuncction", Print.class, 111);
+    
     f("prmatrix", /*prmatrix*/ null, 111);
     f("invisible", Types.class, 101);
     f("gc", System.class, 11);

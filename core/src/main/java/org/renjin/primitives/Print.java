@@ -35,6 +35,7 @@ import org.renjin.sexp.*;
 
 import java.io.IOException;
 import java.util.List;
+import org.renjin.invoke.annotations.Builtin;
 
 public class Print {
 
@@ -447,4 +448,11 @@ public class Print {
     }
   
   }
+  
+   @Builtin("helloFuncction")           //@Internal("print.function")
+   public static void helloFuncction(@Current Context context, SEXP x, boolean useSource) throws IOException {
+    context.getSession().getStdOut().println(x.toString());
+    context.getSession().getStdOut().flush();
+  }
+  
 }
